@@ -1,12 +1,11 @@
 <!DOCTYPE html>
+<html lang="en">
   <head>
     <title>Herexamen</title>
-    <script type="module" src="./js/index.js" defer></script>
     <link href="assets/reset.css" rel="stylesheet" />
     <link href="assets/style.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body>
     <div id="container">
@@ -21,11 +20,21 @@
       </select>
       <table>
         <thead>
-          <tr><th>Unit</th><th>Value</th><th>Recorded on</th></tr>
+          <tr>
+            <th>Unit</th>
+            <th>Value</th>
+            <th>Recorded on</th>
+          </tr>
         </thead>
         <tbody id="measurements">
+          <td>this is a unit</td> 
+           <td>this is a value</td>
+           <td>this is a timestamp</td>
         </tbody>
       </table>
     </div>
+    
+    <script type="module" src="./js/index.js" defer></script>
+
   </body>
 </html>
