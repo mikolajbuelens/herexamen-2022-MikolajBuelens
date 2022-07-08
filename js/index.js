@@ -23,37 +23,57 @@ const app = {
     fetch("https://thecrew.cc/herexamen/measurements.json")
       .then((res) => res.json())
       .then((data) => {
-        console.log(data.measurements[0].type);
-        // data.map((mappedData) => {
-        //   console.log(mappedData);
-        // });
+        console.log(data);
+        let table = "";
+        data.measurements.map((mapped) => {
+          table += `
+          <tr>
+            <td>${mapped.type}</td>
+            <td>${mapped.value}</td>
+            <td>${mapped.timestamp}</td>
+          </tr>`;
+        });
 
-        // ? Json structure
-        // ?"uuid": "a528e2fe-c699-4f40-99b9-066a28e33d32",
-        // ?"value": 1.7357091846572281,
-        // ?"type": "VOC", (== unit)
-        // ?"timestamp": 1656600000
+        document.getElementById("measurements").innerHTML = table;
+      })
+      .catch((error) => {
+        console.error(error);
+      }),
+      // console.log(mapped);
+      // console.log(data.measurements[0].type);
 
-        class Table {
-          constructor(value, unit, timestamp) {
-            this.data.value = value;
-            this.unit = unit;
-            this.timestamp = timestamp;
-          }
-          get unit() {
-            console.log(this.unit);
-            return this.measurements[this.unit];
-          }
+      // data.map((mappedData) => {
+      //   console.log(mappedData);
+      // });
 
-          get value() {}
+      // ? Json structure
+      // ?"uuid": "a528e2fe-c699-4f40-99b9-066a28e33d32",
+      // ?"value": 1.7357091846572281,
+      // ?"type": "VOC", (== unit)
+      // ?"timestamp": 1656600000
 
-          get time() {}
-
-          get date() {}
-
-          get htmlstring() {}
+      class Table {
+        constructor(value, unit, timestamp) {
+          this.data.value = value;
+          this.unit = unit;
+          this.timestamp = timestamp;
         }
-      });
+        get unit() {
+          console.log("I got it!");
+          // console.log(this.unit);
+          // return this.measurements[this.unit];
+        }
+
+        get value() {
+          // console.log(data.measurements[1].unit);
+        }
+
+        get time() {}
+
+        get date() {}
+
+        get htmlstring() {}
+      };
   },
   filter() {},
   renderChart() {},
