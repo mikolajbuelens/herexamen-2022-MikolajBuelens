@@ -34,6 +34,7 @@ const app = {
         // console.log(data);
         data.measurements.map((mapped) => {
           // console.log(mapped);
+
           class Measurements {
             constructor(value, type, timestamp) {
               this._value = value;
@@ -69,25 +70,30 @@ const app = {
             get htmlstring() {
               return `
                 <tr>
-                <td>${this._unit}</td>
-                <td>${this._value}</td>
-                <td>${this._timestamp}</td>
+                <td>${getData.unit}</td>
+                <td>${getData.value}</td>
+                <td>${getData.date + " " + getData.time}</td>
                 </tr>`;
             }
           }
           // console.log(mapped.value);
-          let table = "";
-          document.getElementById("measurements").innerHTML = table;
+          // console.log(this.getData.value);
+
+          // let table = "";
+          // document.getElementById("measurements").innerHTML = table;
           const getData = new Measurements(
             mapped.value,
             mapped.type,
             mapped.timestamp
           );
-          console.log(
-            getData.value,
-            getData.unit,
-            getData.date + " " + getData.time
-          );
+          const tableHtml = document.getElementById("measurements");
+          tableHtml.innerHTML += getData.htmlstring;
+          console.log(getData.htmlstring);
+          // console.log(
+          //   getData.value,
+          //   getData.unit,
+          //   getData.date + " " + getData.time
+          // );
           // console.log(typedata);
         });
       });
