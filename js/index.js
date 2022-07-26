@@ -1,9 +1,9 @@
 "use strict";
 
-// TODO:  Store fetched data in classes (value, unit, timestamp)
-// TODO:  Implement function in classes (get value, get unit, get time, get data, get htmlString)
-// TODO:  convert time and date to string
-// TODO:  put data in table
+//* DONE:  Store fetched data in classes (value, unit, timestamp)
+//* DONE:  Implement function in classes (get value, get unit, get time, get data, get htmlString)
+//* DONE:  convert time and date to string
+//* DONE:  put data in table
 // TODO:  Show selected data in graph
 // TODO:  apply filter to data
 // TODO:  Get new table/graph after filtering
@@ -24,6 +24,11 @@ const app = {
   init() {
     console.log("int");
     this.fetchData();
+    this.filter();
+    this.renderChart();
+    this.render();
+
+    // console.log(this.measurements);
   },
 
   fetchData() {
@@ -31,10 +36,8 @@ const app = {
       .then((res) => res.json())
 
       .then((data) => {
-        // console.log(data);
         data.measurements.map((mapped) => {
-          // console.log(mapped);
-
+          this.measurements.push(mapped.value);
           class Measurements {
             constructor(value, type, timestamp) {
               this._value = value;
@@ -52,9 +55,6 @@ const app = {
               return this._value;
             }
 
-            //! time and date need to be converted to localstring
-            //tijdsstring via `.toLocaleString("nl-BE")`
-            //datumstring via `.toLocaleDateString("nl-BE")`
             get time() {
               return new Date(this._timestamp * 1000).toLocaleString("nl-BE", {
                 timeStyle: "short",
@@ -76,27 +76,21 @@ const app = {
                 </tr>`;
             }
           }
-          // console.log(mapped.value);
-          // console.log(this.getData.value);
 
-          // let table = "";
-          // document.getElementById("measurements").innerHTML = table;
           const getData = new Measurements(
             mapped.value,
             mapped.type,
             mapped.timestamp
           );
+          // console.log(add);
+
           const tableHtml = document.getElementById("measurements");
           tableHtml.innerHTML += getData.htmlstring;
-          console.log(getData.htmlstring);
-          // console.log(
-          //   getData.value,
-          //   getData.unit,
-          //   getData.date + " " + getData.time
-          // );
-          // console.log(typedata);
+          // let testing = this.measurements.push("a", "b");
+          // console.log(this.measurements.length);
         });
       });
+    //   this.measurements.push(1, 2, 3, "4");
 
     // .catch((error) => {
     //   console.error(error);
@@ -104,9 +98,64 @@ const app = {
   },
 
   // Apply filter = make new render of chart & table
-  filter() {},
+  filter() {
+    let filter = this.filtered;
+    // console.dir(filter);
+  },
+
   //render chart (Libary)
-  renderChart() {},
+  renderChart() {
+    var logger;
+    logger = () => {
+      console.log(this.measurements);
+      console.log(this.measurements.length);
+    };
+    setTimeout(logger, 1000);
+
+    console.log(this.measurements.length);
+    // X = time
+    var xValues = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
+
+    setTimeout(() => {
+      const ctx = document.getElementById("chart").getContext("2d");
+      const myChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: xValues,
+          datasets: [
+            {
+              label: "CO2",
+              data: [this.measurements],
+              borderColor: "red",
+              fill: false,
+            },
+            {
+              label: "VOC",
+              data: this.measurements,
+              borderColor: "green",
+              fill: false,
+            },
+            {
+              label: "PM25",
+              data: this.measurements,
+              borderColor: "blue",
+              fill: false,
+            },
+            {
+              label: "PM10",
+              data: this.measurements,
+              borderColor: "yellow",
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          legend: { display: false },
+        },
+      });
+    }, 1000);
+  },
+
   // render table
   render() {},
 };
