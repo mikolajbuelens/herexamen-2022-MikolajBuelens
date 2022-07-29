@@ -4,9 +4,12 @@
 //* DONE:  Implement function in classes (get value, get unit, get time, get data, get htmlString)
 //* DONE:  convert time and date to string
 //* DONE:  put data in table
-// TODO:  Show selected data in graph
-// TODO:  apply filter to data
-// TODO:  Get new table/graph after filtering
+//* DONE:  apply filter to data
+//* DONE:  Get new table/graph after filtering
+
+//  TODO:  display values in graph by label
+//  TODO:  Get month value from api objects and update graph accordingly
+//  TODO:  Catch errors in fetchData
 
 // ! ----------------15/08 23:59----------------
 
@@ -16,9 +19,103 @@
 // ?"type": "VOC", (== unit)
 // ?"timestamp": 1656600000
 
+const data = {
+  labels: [
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ],
+  datasets: [
+    {
+      //? [june: value, july:value,.....]
+      label: "CO2",
+      data: [6, 1, 7, 3, 2, 5],
+      borderWidth: 1,
+      backgroundColor: "rgba(0, 127, 255, 0.3)",
+      borderColor: "rgba(0, 127, 255, 1)",
+    },
+    {
+      label: "VOC",
+      data: [7, 4, 5, 4, 4, 2],
+      borderWidth: 1,
+      backgroundColor: "rgba(221, 5, 49, 0.3)",
+      borderColor: "rgba(221, 5, 49, 1)",
+    },
+    {
+      label: "PM25",
+      data: [6, 4, 7, 7, 1, 4],
+      borderWidth: 1,
+      backgroundColor: "rgba(249, 230, 79, 0.3)",
+      borderColor: "rgba(249, 230, 79, 1)",
+    },
+    {
+      label: "PM10",
+      data: [1, 2, 4, 5, 6, 7],
+      borderWidth: 1,
+      backgroundColor: "rgba(25, 227, 89, 0.3)",
+      borderColor: "rgba(25, 227, 89, 1)",
+    },
+  ],
+};
+const config = {
+  type: "bar",
+  data,
+
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  },
+};
+
+const myChart = new Chart(document.getElementById("chart"), config);
+
+class Measurements {
+  constructor(value, type, timestamp) {
+    this._value = value;
+    this._unit = type;
+    this._timestamp = timestamp;
+  }
+
+  //! unit will be the filter criteria
+  //! unit == type in json format
+  get unit() {
+    return this._unit;
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  get time() {
+    return new Date(this._timestamp * 1000).toLocaleString("nl-BE", {
+      timeStyle: "short",
+    });
+  }
+
+  get date() {
+    return new Date(this._timestamp * 1000).toLocaleDateString("nl-BE");
+  }
+
+  get htmlstring() {
+    return `
+      <tr>
+      <td>${this.unit}</td>
+      <td>${this.value}</td>
+      <td>${this.date} ${this.time}</td>
+      </tr>`;
+  }
+}
+
 const app = {
   measurements: [], //? all measurements
-  filtered: ["CO2", "VOC", "PM25", "PM10"], //? unit/type
+  filtered: [], //? unit/type
   selectedMeasurement: "all",
 
   init() {
@@ -34,132 +131,94 @@ const app = {
   fetchData() {
     fetch("https://thecrew.cc/herexamen/measurements.json")
       .then((res) => res.json())
-
-      .then((data) => {
-        data.measurements.map((mapped) => {
-          this.measurements.push(mapped.value);
-          class Measurements {
-            constructor(value, type, timestamp) {
-              this._value = value;
-              this._unit = type;
-              this._timestamp = timestamp;
-            }
-
-            //! unit will be the filter criteria
-            //! unit == type in json format
-            get unit() {
-              return this._unit;
-            }
-
-            get value() {
-              return this._value;
-            }
-
-            get time() {
-              return new Date(this._timestamp * 1000).toLocaleString("nl-BE", {
-                timeStyle: "short",
-              });
-            }
-
-            get date() {
-              return new Date(this._timestamp * 1000).toLocaleDateString(
-                "nl-BE"
-              );
-            }
-
-            get htmlstring() {
-              return `
-                <tr>
-                <td>${getData.unit}</td>
-                <td>${getData.value}</td>
-                <td>${getData.date + " " + getData.time}</td>
-                </tr>`;
-            }
-          }
-
-          const getData = new Measurements(
-            mapped.value,
-            mapped.type,
-            mapped.timestamp
+      .then((data) =>
+        data.measurements.forEach((object) => {
+          this.measurements.push(
+            new Measurements(object.value, object.type, object.timestamp)
           );
-          // console.log(add);
-
-          const tableHtml = document.getElementById("measurements");
-          tableHtml.innerHTML += getData.htmlstring;
-          // let testing = this.measurements.push("a", "b");
-          // console.log(this.measurements.length);
-        });
-      });
-    //   this.measurements.push(1, 2, 3, "4");
-
-    // .catch((error) => {
-    //   console.error(error);
-    // }),
+        })
+      );
   },
 
   // Apply filter = make new render of chart & table
   filter() {
-    let filter = this.filtered;
-    // console.dir(filter);
+    if (this.selectedMeasurement === "all") {
+      this.filtered = this.measurements;
+    } else {
+      this.filtered = this.measurements.filter(
+        (x) => x.unit === this.selectedMeasurement
+      );
+    }
+    this.render();
+    this.selectedMeasurement = document.getElementById("typeFilter").value;
   },
 
   //render chart (Libary)
   renderChart() {
-    var logger;
-    logger = () => {
-      console.log(this.measurements);
-      console.log(this.measurements.length);
-    };
-    setTimeout(logger, 1000);
+    // let m = this.measurments.unit;
+    // console.log(m);
 
-    console.log(this.measurements.length);
-    // X = time
-    var xValues = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
+    // CO2.forEach(v => (v.value) );
+    // }, 1000);
 
     setTimeout(() => {
-      const ctx = document.getElementById("chart").getContext("2d");
-      const myChart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: xValues,
-          datasets: [
-            {
-              label: "CO2",
-              data: [this.measurements],
-              borderColor: "red",
-              fill: false,
-            },
-            {
-              label: "VOC",
-              data: this.measurements,
-              borderColor: "green",
-              fill: false,
-            },
-            {
-              label: "PM25",
-              data: this.measurements,
-              borderColor: "blue",
-              fill: false,
-            },
-            {
-              label: "PM10",
-              data: this.measurements,
-              borderColor: "yellow",
-              fill: false,
-            },
-          ],
-        },
-        options: {
-          legend: { display: false },
-        },
-      });
+      let CO2 = this.measurements.filter((f) => f.unit === "CO2");
+
+      let monthCO2 = CO2.filter((m) => m.date);
+      console.log(monthCO2); // Should only return specific month, date is a string
+
+      let reducedCO2 = monthCO2.reduce((a, b) => {
+        return a + b.value;
+      }, 0);
+      console.log(reducedCO2);
     }, 1000);
   },
 
-  // render table
-  render() {},
-};
+  render() {
+    document.getElementById("measurements").innerHTML = ``;
+    this.filtered.forEach(
+      (x) => (document.getElementById("measurements").innerHTML += x.htmlstring)
+    );
+    document.getElementById("typeFilter").onchange = () => {
+      this.selectedMeasurement = document.getElementById("typeFilter").value;
+      this.filter();
 
+      console.log(this.selectedMeasurement);
+      //! true = show, hide = false
+      if (this.selectedMeasurement === "all") {
+        myChart.setDatasetVisibility(0, true);
+        myChart.setDatasetVisibility(1, true);
+        myChart.setDatasetVisibility(2, true);
+        myChart.setDatasetVisibility(3, true);
+        myChart.update();
+      } else if (this.selectedMeasurement === "CO2") {
+        myChart.setDatasetVisibility(0, true);
+        myChart.setDatasetVisibility(1, false);
+        myChart.setDatasetVisibility(2, false);
+        myChart.setDatasetVisibility(3, false);
+        myChart.update();
+      } else if (this.selectedMeasurement === "VOC") {
+        myChart.setDatasetVisibility(0, false);
+        myChart.setDatasetVisibility(1, true);
+        myChart.setDatasetVisibility(2, false);
+        myChart.setDatasetVisibility(3, false);
+        myChart.update();
+      } else if (this.selectedMeasurement === "PM25") {
+        myChart.setDatasetVisibility(0, false);
+        myChart.setDatasetVisibility(1, false);
+        myChart.setDatasetVisibility(2, true);
+        myChart.setDatasetVisibility(3, false);
+        myChart.update();
+      } else if (this.selectedMeasurement === "PM10") {
+        myChart.setDatasetVisibility(0, false);
+        myChart.setDatasetVisibility(1, false);
+        myChart.setDatasetVisibility(2, false);
+        myChart.setDatasetVisibility(3, true);
+        myChart.update();
+      }
+    };
+  },
+};
 // console.log(app.fetchData);
 // console.log(app);
 
