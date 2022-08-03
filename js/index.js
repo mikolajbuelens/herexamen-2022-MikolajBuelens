@@ -7,6 +7,7 @@
 //* DONE:  apply filter to data
 //* DONE:  Get new table/graph after filtering
 
+//  TODO: fix split (line: 166)
 //  TODO:  display values in graph by label
 //  TODO:  Get month value from api objects and update graph accordingly
 //  TODO:  Catch errors in fetchData
@@ -142,36 +143,38 @@ const app = {
 
   // Apply filter = make new render of chart & table
   filter() {
-    if (this.selectedMeasurement === "all") {
-      this.filtered = this.measurements;
-    } else {
-      this.filtered = this.measurements.filter(
-        (x) => x.unit === this.selectedMeasurement
-      );
-    }
-    this.render();
-    this.selectedMeasurement = document.getElementById("typeFilter").value;
-  },
-
-  //render chart (Libary)
-  renderChart() {
-    // let m = this.measurments.unit;
-    // console.log(m);
-
-    // CO2.forEach(v => (v.value) );
-    // }, 1000);
-
     setTimeout(() => {
-      let CO2 = this.measurements.filter((f) => f.unit === "CO2");
+      if (this.selectedMeasurement === "all") {
+        this.filtered = this.measurements;
+      } else {
+        this.filtered = this.measurements.filter(
+          (x) => x.unit === this.selectedMeasurement
+        );
+      }
+      this.render();
+      this.selectedMeasurement = document.getElementById("typeFilter").value;
+      this.renderChart("CO2");
+    }, 50);
+  },
+  //render chart (Libary)
+  renderChart(type) {
+    for (let i = 5; i < 12; ) {
+      i++;
+      i = i.toString();
 
-      let monthCO2 = CO2.filter((m) => m.date);
-      console.log(monthCO2); // Should only return specific month, date is a string
+      //! need to fix split
+      // let split = this.measurements.forEach((m) => m.date.split("/"));
+      // console.log(split);
+      // console.warn(this.measurements);
 
-      let reducedCO2 = monthCO2.reduce((a, b) => {
+      let testMonth = this.measurements.filter((f) => f.date[3] === i);
+      let unit = testMonth.filter((u) => u.unit === type);
+      console.log(unit);
+      let reduced = unit.reduce((a, b) => {
         return a + b.value;
       }, 0);
-      console.log(reducedCO2);
-    }, 1000);
+      console.log(reduced);
+    }
   },
 
   render() {
