@@ -44,7 +44,8 @@ class Measurements {
   }
 
   get date() {
-    return new Date(this._timestamp * 1000).toLocaleDateString("nl-BE");
+     return new Date(this._timestamp * 1000).toLocaleDateString("nl-BE").split('/');
+    
   }
 
   get htmlstring() {
@@ -52,7 +53,7 @@ class Measurements {
       <tr>
       <td>${this.unit}</td>
       <td>${this.value}</td>
-      <td>${this.date} ${this.time}</td>
+      <td>${this.date.join('/')} ${this.time}</td>
       </tr>`;
   }
 }
@@ -164,21 +165,54 @@ const app = {
       }
       this.render();
       this.selectedMeasurement = document.getElementById("typeFilter").value;
-      this.renderChart("CO2");
+      // this.renderChart("CO2");
     }, 50);
   },
   //render chart (Library)
   renderChart(type, arr) {
+
+    
+      
+    
+    // let splitter = this.measurements.map((m) => {
+    //   m.date = m.date.split("/");
+    //   return m;
+    // });
+    // console.log(splitter);
+  
+
     for (let i = 5; i < 12; ) {
       i++;
       i = i.toString();
 
       //! need to fix split
-      // let split = this.measurements.forEach((m) => m.date.split("/"));
+      // let split = this.measurements.map((m) => m.date.split("/"));
+      // let months = split.filter(m => m[1] === i);
+      // console.log(months);
+
       // console.log(split);
+
       // console.warn(this.measurements);
 
-      let testMonth = this.measurements.filter((f) => f.date[3] === i);
+      // let date = "01/11/2016";
+
+      // var arr2 = date.split("/");
+
+      // console.log(arr2[1]);
+
+      // let testSplit = this.measurements.forEach((s) => s.date.split("/"));
+      // let monthTest =  testSplit.filter((y) =>console.log( y.date[1]) === i);
+      // console.log(testSplit);
+      // console.log(monthTest);
+
+      // let split = this.date.split;
+
+      // let splitter = this.measurements.map((mapped) => mapped.date.split("/"));
+      // let month = splitter.filter((m) => m[1] === i);
+      // console.log(month);
+      let testMonth = this.measurements.filter((f) => f.date[1] === i);
+
+      // let month = testMonth.filter((f) => f.date[1] === i);
       let unit = testMonth.filter((u) => u.unit === type);
       // console.log(unit);
       let reduced = unit.reduce((a, b) => {
@@ -186,7 +220,7 @@ const app = {
       }, 0);
       // console.log(reduced);
       arr.push(reduced);
-      console.log(reduced);
+      // console.log(reduced);
     }
   },
 
