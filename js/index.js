@@ -20,63 +20,6 @@
 // ?"type": "VOC", (== unit)
 // ?"timestamp": 1656600000
 
-const data = {
-  labels: [
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ],
-  datasets: [
-    {
-      //? [june: value, july:value,.....]
-      label: "CO2",
-      data: [6, 1, 7, 3, 2, 5],
-      borderWidth: 1,
-      backgroundColor: "rgba(0, 127, 255, 0.3)",
-      borderColor: "rgba(0, 127, 255, 1)",
-    },
-    {
-      label: "VOC",
-      data: [7, 4, 5, 4, 4, 2],
-      borderWidth: 1,
-      backgroundColor: "rgba(221, 5, 49, 0.3)",
-      borderColor: "rgba(221, 5, 49, 1)",
-    },
-    {
-      label: "PM25",
-      data: [6, 4, 7, 7, 1, 4],
-      borderWidth: 1,
-      backgroundColor: "rgba(249, 230, 79, 0.3)",
-      borderColor: "rgba(249, 230, 79, 1)",
-    },
-    {
-      label: "PM10",
-      data: [1, 2, 4, 5, 6, 7],
-      borderWidth: 1,
-      backgroundColor: "rgba(25, 227, 89, 0.3)",
-      borderColor: "rgba(25, 227, 89, 1)",
-    },
-  ],
-};
-const config = {
-  type: "bar",
-  data,
-
-  options: {
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  },
-};
-
-const myChart = new Chart(document.getElementById("chart"), config);
-
 class Measurements {
   constructor(value, type, timestamp) {
     this._value = value;
@@ -123,10 +66,78 @@ const app = {
     console.log("int");
     this.fetchData();
     this.filter();
-    this.renderChart();
     this.render();
 
-    // console.log(this.measurements);
+    setTimeout(() => {
+      const arr1 = [];
+      const arr2 = [];
+      const arr3 = [];
+      const arr4 = [];
+      this.renderChart("CO2", arr1);
+      this.renderChart("VOC", arr2);
+      this.renderChart("PM25", arr3);
+      this.renderChart("PM10", arr4);
+      console.log(arr1);
+
+      const data = {
+        labels: [
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ],
+        datasets: [
+          {
+            //? [june: value, july:value,.....]
+            label: "CO2",
+            data: arr1,
+            borderWidth: 1,
+            backgroundColor: "rgba(0, 127, 255, 0.3)",
+            borderColor: "rgba(0, 127, 255, 1)",
+          },
+          {
+            label: "VOC",
+            data: arr2,
+            borderWidth: 1,
+            backgroundColor: "rgba(221, 5, 49, 0.3)",
+            borderColor: "rgba(221, 5, 49, 1)",
+          },
+          {
+            label: "PM25",
+            data: arr3,
+            borderWidth: 1,
+            backgroundColor: "rgba(249, 230, 79, 0.3)",
+            borderColor: "rgba(249, 230, 79, 1)",
+          },
+          {
+            label: "PM10",
+            data: arr4,
+            borderWidth: 1,
+            backgroundColor: "rgba(25, 227, 89, 0.3)",
+            borderColor: "rgba(25, 227, 89, 1)",
+          },
+        ],
+      };
+      const config = {
+        type: "bar",
+        data,
+
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      };
+
+      const myChart = new Chart(document.getElementById("chart"), config);
+
+      // console.log(this.measurements);
+    }, 1000);
   },
 
   fetchData() {
@@ -156,8 +167,8 @@ const app = {
       this.renderChart("CO2");
     }, 50);
   },
-  //render chart (Libary)
-  renderChart(type) {
+  //render chart (Library)
+  renderChart(type, arr) {
     for (let i = 5; i < 12; ) {
       i++;
       i = i.toString();
@@ -169,10 +180,12 @@ const app = {
 
       let testMonth = this.measurements.filter((f) => f.date[3] === i);
       let unit = testMonth.filter((u) => u.unit === type);
-      console.log(unit);
+      // console.log(unit);
       let reduced = unit.reduce((a, b) => {
         return a + b.value;
       }, 0);
+      // console.log(reduced);
+      arr.push(reduced);
       console.log(reduced);
     }
   },
