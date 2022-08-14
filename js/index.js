@@ -130,7 +130,7 @@ const app = {
         myChart.setDatasetVisibility(3, false);
       }
       myChart.update();
-    }, 100);
+    }, 500);
   },
   //render chart (Library)
   renderChart(type, arr) {
