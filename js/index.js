@@ -143,7 +143,6 @@ app.renderChart("CO2", arr1);
 app.renderChart("VOC", arr2);
 app.renderChart("PM25", arr3);
 app.renderChart("PM10", arr4);
-console.log(arr1);
 
 const data = {
   labels: [
