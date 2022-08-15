@@ -1,25 +1,6 @@
 "use strict";
 
-//* DONE:  Store fetched data in classes (value, unit, timestamp)
-//* DONE:  Implement function in classes (get value, get unit, get time, get data, get htmlString)
-//* DONE:  convert time and date to string
-//* DONE:  put data in table
-//* DONE:  apply filter to data
-//* DONE:  Get new table/graph after filtering
-
-//  TODO: fix split (line: 166)
-//  TODO:  display values in graph by label
-//  TODO:  Get month value from api objects and update graph accordingly
-//  TODO:  Catch errors in fetchData
-
-// ! ----------------15/08 23:59----------------
-
-// ? Json structure
-// ?"uuid": "a528e2fe-c699-4f40-99b9-066a28e33d32",
-// ?"value": 1.7357091846572281,
-// ?"type": "VOC", (== unit)
-// ?"timestamp": 1656600000
-
+// Store API data with getters within class Measurements
 class Measurements {
   constructor(value, type, timestamp) {
     this._value = value;
@@ -27,8 +8,6 @@ class Measurements {
     this._timestamp = timestamp;
   }
 
-  //! unit will be the filter criteria
-  //! unit == type in json format
   get unit() {
     return this._unit;
   }
@@ -60,17 +39,17 @@ class Measurements {
 }
 
 const app = {
-  measurements: [], //? all measurements
-  filtered: [], //? unit/type
+  measurements: [],
+  filtered: [],
   selectedMeasurement: "all",
 
   init() {
-    console.log("int");
     this.fetchData();
     this.filter();
     this.render();
   },
 
+  // Fetch data and put in class Measurements
   fetchData() {
     fetch("https://thecrew.cc/herexamen/measurements.json")
       .then((res) => res.json())
@@ -83,7 +62,7 @@ const app = {
       );
   },
 
-  // Apply filter = make new render of chart & table
+  // check HTML dropdown value and apply to selectedMeasurement
   filter() {
     if (this.selectedMeasurement === "all") {
       this.filtered = this.measurements;
@@ -94,239 +73,133 @@ const app = {
     }
     this.render();
     this.selectedMeasurement = document.getElementById("typeFilter").value;
-    // this.renderChart("CO2");
+
+    const option = this.selectedMeasurement; // Better readability
 
     setTimeout(() => {
-      if (
-        this.selectedMeasurement === "all" ||
-        this.selectedMeasurement === "CO2"
-      ) {
-        myChart.setDatasetVisibility(0, true);
+      if (option === "all" || option === "CO2") {
+        myChart.show(0);
       } else {
         myChart.setDatasetVisibility(0, false);
       }
-      if (
-        this.selectedMeasurement === "all" ||
-        this.selectedMeasurement === "VOC"
-      ) {
-        myChart.setDatasetVisibility(1, true);
+      if (option === "all" || option === "VOC") {
+        myChart.show(1);
       } else {
         myChart.setDatasetVisibility(1, false);
       }
-      if (
-        this.selectedMeasurement === "all" ||
-        this.selectedMeasurement === "PM25"
-      ) {
-        myChart.setDatasetVisibility(2, true);
+      if (option === "all" || option === "PM25") {
+        myChart.show(2);
       } else {
         myChart.setDatasetVisibility(2, false);
       }
-      if (
-        this.selectedMeasurement === "all" ||
-        this.selectedMeasurement === "PM10"
-      ) {
-        myChart.setDatasetVisibility(3, true);
+      if (option === "all" || this.selectedMeasurement === "PM10") {
+        myChart.show(3);
       } else {
         myChart.setDatasetVisibility(3, false);
       }
       myChart.update();
     }, 500);
   },
-  //render chart (Library)
+
+  // Reduces values and pushes them in the chart by unit and month
   renderChart(type, arr) {
-    // let splitter = this.measurements.map((m) => {
-    //   m.date = m.date.split("/");
-    //   return m;
-    // });
-    // console.log(splitter);
     setTimeout(() => {
       for (let i = 5; i < 12; ) {
         i++;
         i = i.toString();
 
-        //! need to fix split
-        // let split = this.measurements.map((m) => m.date.split("/"));
-        // let months = split.filter(m => m[1] === i);
-        // console.log(months);
+        const month = this.measurements.filter((f) => f.date[1] === i);
 
-        // console.log(split);
-
-        // console.warn(this.measurements);
-
-        // let date = "01/11/2016";
-
-        // var arr2 = date.split("/");
-
-        // console.log(arr2[1]);
-
-        // let testSplit = this.measurements.forEach((s) => s.date.split("/"));
-        // let monthTest =  testSplit.filter((y) =>console.log( y.date[1]) === i);
-        // console.log(testSplit);
-        // console.log(monthTest);
-
-        // let split = this.date.split;
-
-        // let splitter = this.measurements.map((mapped) => mapped.date.split("/"));
-        // let month = splitter.filter((m) => m[1] === i);
-        // console.log(month);
-        let testMonth = this.measurements.filter((f) => f.date[1] === i);
-
-        // let month = testMonth.filter((f) => f.date[1] === i);
-        let unit = testMonth.filter((u) => u.unit === type);
-        // console.log(unit);
-        let reduced = unit.reduce((a, b) => {
+        const unit = month.filter((u) => u.unit === type);
+        const reduced = unit.reduce((a, b) => {
           return a + b.value;
         }, 0);
-        // console.log(reduced);
         arr.push(reduced);
-        // console.log(reduced);
       }
     }, 100);
   },
 
+  // put class data inside table and apply possible filter on change event
   render() {
     setTimeout(() => {
-      
-   
-    document.getElementById("measurements").innerHTML = ``;
-    this.filtered.forEach(
-      (x) => (document.getElementById("measurements").innerHTML += x.htmlstring)
-    );
-    document.getElementById("typeFilter").onchange = () => {
-      this.selectedMeasurement = document.getElementById("typeFilter").value;
-      this.filter();
-
-      
-      
-    };
-  }, 100);
+      document.getElementById("measurements").innerHTML = ``;
+      this.filtered.forEach(
+        (x) =>
+          (document.getElementById("measurements").innerHTML += x.htmlstring)
+      );
+      document.getElementById("typeFilter").onchange = () => {
+        this.selectedMeasurement = document.getElementById("typeFilter").value;
+        this.filter();
+      };
+    }, 100);
   },
 };
-  const arr1 = [];
-  const arr2 = [];
-  const arr3 = [];
-  const arr4 = [];
-  app.renderChart("CO2", arr1);
-  app.renderChart("VOC", arr2);
-  app.renderChart("PM25", arr3);
-  app.renderChart("PM10", arr4);
-  console.log(arr1);
 
-  const data = {
-    labels: [
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ],
-    datasets: [
-      {
-        //? [june: value, july:value,.....]
-        label: "CO2",
-        data: arr1,
-        borderWidth: 1,
-        backgroundColor: "rgba(0, 127, 255, 0.3)",
-        borderColor: "rgba(0, 127, 255, 1)",
-      },
-      {
-        label: "VOC",
-        data: arr2,
-        borderWidth: 1,
-        backgroundColor: "rgba(221, 5, 49, 0.3)",
-        borderColor: "rgba(221, 5, 49, 1)",
-      },
-      {
-        label: "PM25",
-        data: arr3,
-        borderWidth: 1,
-        backgroundColor: "rgba(249, 230, 79, 0.3)",
-        borderColor: "rgba(249, 230, 79, 1)",
-      },
-      {
-        label: "PM10",
-        data: arr4,
-        borderWidth: 1,
-        backgroundColor: "rgba(25, 227, 89, 0.3)",
-        borderColor: "rgba(25, 227, 89, 1)",
-      },
-    ],
-  };
-  const config = {
-    type: "bar",
-    data,
+const arr1 = [];
+const arr2 = [];
+const arr3 = [];
+const arr4 = [];
+app.renderChart("CO2", arr1);
+app.renderChart("VOC", arr2);
+app.renderChart("PM25", arr3);
+app.renderChart("PM10", arr4);
+console.log(arr1);
 
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
+const data = {
+  labels: [
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ],
+  datasets: [
+    {
+      //? [june: value, july:value,.....]
+      label: "CO2",
+      data: arr1,
+      borderWidth: 1,
+      backgroundColor: "rgba(0, 127, 255, 0.3)",
+      borderColor: "rgba(0, 127, 255, 1)",
+    },
+    {
+      label: "VOC",
+      data: arr2,
+      borderWidth: 1,
+      backgroundColor: "rgba(221, 5, 49, 0.3)",
+      borderColor: "rgba(221, 5, 49, 1)",
+    },
+    {
+      label: "PM25",
+      data: arr3,
+      borderWidth: 1,
+      backgroundColor: "rgba(249, 230, 79, 0.3)",
+      borderColor: "rgba(249, 230, 79, 1)",
+    },
+    {
+      label: "PM10",
+      data: arr4,
+      borderWidth: 1,
+      backgroundColor: "rgba(25, 227, 89, 0.3)",
+      borderColor: "rgba(25, 227, 89, 1)",
+    },
+  ],
+};
+const config = {
+  type: "bar",
+  data,
+
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true,
       },
     },
-  };
+  },
+};
 
-  const myChart = new Chart(document.getElementById("chart"), config);
-
-  // console.log(this.measurements);
-// console.log(app.fetchData);
-// console.log(app);
+const myChart = new Chart(document.getElementById("chart"), config);
 
 app.init();
-
-//* ------------------------test code------------------------
-
-// const naming = {
-//   wheelers() {
-//     class Stranger {
-//       constructor(name, town, state) {
-//         this._name = name;
-//         this._town = town;
-//         this._state = state;
-//       }
-
-//       get name() {
-//         return (this._name += " Wheeler");
-//       }
-//       get location() {
-//         return this._town + ", " + this._state;
-//       }
-//     }
-
-//     const fullName = new Stranger("Mike", "Hawkins", "Indiana");
-//     const fullName2 = new Stranger("Nancy", "Hawkins", "Indiana");
-
-//     console.log(fullName._name);
-//     console.log(fullName);
-
-//     console.log(fullName);
-//     console.log(fullName2);
-//     console.log(fullName.name, fullName.location);
-//     console.log(fullName.location);
-//     console.log(fullName2.name, fullName2.location);
-//   },
-// };
-
-// naming.wheelers();
-
-//!timestamp is not readable => computer code
-// const date = new Date(Date.UTC(2016, 11, 20, 3, 0, 0));
-
-// // formats below assume the local time zone of the locale;
-// // America/Los_Angeles for the US
-
-// // US English uses month-day-year order
-// console.log(date.toLocaleDateString("nl-BE"));
-// // → "20/12/2012"
-
-// const timestamp = 1656875880;
-
-// //* date
-// const converted = new Date(timestamp * 1000);
-// console.log(converted.toLocaleDateString("nl-BE"));
-
-// //*time
-// const time = new Date(timestamp * 1000);
-// let convertion = time.toLocaleString("nl-BE", { timeStyle: "short" });
-// console.log(convertion);
